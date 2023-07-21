@@ -23,14 +23,14 @@ You can run the script directly from Windows Powershell, there are no extra comm
 
 **Q:** Can I run the script safely?  
 **A:** Definitely not. You have to understand what the functions do and what will be the implications for you if you run them.  
-Continuing this, you accept all responsibility for any damages related to this script, or actions taken via the script.  
-Though I have tested this script on Windows 11 Pro, I have not done any further testing.
+Continuing this, you accept all responsibility for any damages related to this script, refer to the MIT License attached.  
+Though I have tested this script on Windows 11 Pro, I have not done any further testing on any other versions of windows.
 
 **Q:** Are elevated rights needed to run this script?  
-**A:** Yes, you'll need administrator rights to delete files and folders under system directories.
+**A:** Administrative rights are required for deleting files and folders within system directories.
 
 **Q:** Did you test the script?  
-**A:** See [Tested on following Windows Versions](#tested-on-following-windows-versions).
+**A:** See [Tested on following Windows Versions](#tested-on-following-windows-versions)
 
 **Q:** I really like the script. Can I send a donation?  
 **A:** The original writer had a donation button, I will currently be accepting donations.
