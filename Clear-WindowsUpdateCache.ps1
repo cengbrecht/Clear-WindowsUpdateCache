@@ -4,7 +4,7 @@
 
 # Where do you want the Transcript Stored?
 $thefolderlocation = "C:\Temp"
-
+$WhatIf = "Enabled" #Change to Disabled to delete files.
 
 
 
@@ -18,11 +18,14 @@ $thefolderlocation = "C:\Temp"
 $ErrorActionPreference = 'silentlycontinue'
 $PSDefaultParameterValues['out-file:width'] = 2000
 $VerbosePreference = "Continue"
+$UpdateCachePath = Join-Path $env:windir "SoftwareDistribution\Download"
 
 # Log all output
 $date = Get-Date -Format "(dd-MM-yyyy)"
 $logpath = "$thefolderlocation\WindowsUpdateFix" + $date + ".txt"
 Start-Transcript -Path $logpath
+Write-Host "Path where files will be cleaned up:"
+Write-Host $UpdateCachePath
 
 # Clear-WindowsUpdateCache
 # Script to clear the Windows Update Cache to free up disk space
@@ -81,11 +84,15 @@ Function Set-ServiceActions (
 Set-ServiceActions -Stage $Stage -Services $Services
 
 # Clean Windows Update Cache
-$UpdateCachePath = Join-Path $env:windir "SoftwareDistribution\Download"
 $fileNames = (Get-ChildItem -Path $UpdateCachePath -Recurse)
 ForEach ($item in $fileNames){
-    #Write-Host $item.Name
-    #$item | Remove-Item -Force -Whatif
+    If ($WhatIf -eq "Enabled") {
+        Write-Host $item.name
+        $item | Remove-Item -Force -Verbose -Recurse -WhatIf
+    }Elseif ($WhatIf -eq "Disabled") {
+        Write-Host $item.name
+        $item | Remove-Item -Force -Verbose -Recurse 
+    }
 }
 
 #Run the Start Sequence
