@@ -23,7 +23,7 @@ You can run the script directly from Windows Powershell, there are no extra comm
 
 **Q:** Can I run the script safely?  
 **A:** Definitely not. You have to understand what the functions do and what will be the implications for you if you run them.  
-Continuing this, you accept all your own responsibilites for the damages done to your computer.  
+Continuing this, you accept all responsibility for any damages related to this script, or actions taken via the script.  
 Though I have tested this script on Windows 11 Pro, I have not done any further testing.
 
 **Q:** Are elevated rights needed to run this script?  
