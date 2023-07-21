@@ -1,25 +1,32 @@
 ############################################
-#Craig's Script for Windows Update Fixing - General Cleanup too if needed.
+#Craig's Script for Fixing Windows Update - General Cleanup too if needed.
 ############################################
 
-# Re-register the name of the session for record keeping.
-Unregister-PSSessionConfiguration
-Register-PSSessionConfiguration
+# Where do you want the Transcript Stored?
+$thefolderlocation = "C:\Temp"
 
 
-# Clear-WindowsUpdateCache
-# Script to clear the Windows Update Cache to free up disk space
 
-$time = Get-Date -Format "(dd-MM-yyyy)"
 
-$logpath = "C:\Temp\WindowsUpdateFix." + $time + ".txt"
+
+# There is not much below here to edit unless you're rebuilding the script
+# Most of the variables here are for automation purposes
+
+####################################################################
+##################### Do Not Modify below here #####################
+####################################################################
 $ErrorActionPreference = 'silentlycontinue'
 $PSDefaultParameterValues['out-file:width'] = 2000
 $VerbosePreference = "Continue"
-$CurrentService = ""
 
 # Log all output
+$date = Get-Date -Format "(dd-MM-yyyy)"
+$logpath = "$thefolderlocation\WindowsUpdateFix" + $date + ".txt"
 Start-Transcript -Path $logpath
+
+# Clear-WindowsUpdateCache
+# Script to clear the Windows Update Cache to free up disk space
+$CurrentService = ""
 
 function Get-FreeDiskSpace {
     $OS = Get-WmiObject -Class Win32_OperatingSystem
@@ -77,8 +84,8 @@ Set-ServiceActions -Stage $Stage -Services $Services
 $UpdateCachePath = Join-Path $env:windir "SoftwareDistribution\Download"
 $fileNames = (Get-ChildItem -Path $UpdateCachePath -Recurse)
 ForEach ($item in $fileNames){
-    Write-Host $item.Name
-    $item | Remove-Item -Force -Whatif
+    #Write-Host $item.Name
+    #$item | Remove-Item -Force -Whatif
 }
 
 #Run the Start Sequence
