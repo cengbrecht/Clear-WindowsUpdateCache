@@ -1,5 +1,25 @@
+############################################
+#Craig's Script for Windows Update Fixing - General Cleanup too if needed.
+############################################
+
+# Re-register the name of the session for record keeping.
+Unregister-PSSessionConfiguration
+Register-PSSessionConfiguration
+
+
 # Clear-WindowsUpdateCache
 # Script to clear the Windows Update Cache to free up disk space
+
+$time = Get-Date -Format "(dd-MM-yyyy)"
+
+$logpath = "C:\Temp\WindowsUpdateFix." + $time + ".txt"
+$ErrorActionPreference = 'silentlycontinue'
+$PSDefaultParameterValues['out-file:width'] = 2000
+$VerbosePreference = "Continue"
+$CurrentService = ""
+
+# Log all output
+Start-Transcript -Path $logpath
 
 function Get-FreeDiskSpace {
     $OS = Get-WmiObject -Class Win32_OperatingSystem
@@ -10,32 +30,67 @@ function Get-FreeDiskSpace {
 
 # Get initial free disk space
 $Before = Get-FreeDiskSpace
-Write-Host "Free Disk Space before: $Before GB" -ForegroundColor Blue
 
-# Check Windows Update Service status
-$WUService = Get-Service wuauserv
+# Run the Stop Sequence
+$Stage = "stop"
 
-# Stop Windows Update Service if it's running
-if ($WUService.Status -eq "Running") {
-    Write-Host "Stopping Windows Update Service..." -ForegroundColor Blue
-    $WUService | Stop-Service -Force
+# List of Services to Stop
+[array] $services = (
+    'wuauserv',
+    'cryptSvc',
+    'bits',
+    'msiserver'
+)
+
+Function Set-ServiceActions (
+    $Stage,
+    $Services
+    ){
+    $Output = ForEach ($service In $services) {
+        # Check $service status
+        $CurrentService = Get-Service $service
+        If ($Stage -eq "stop") {
+            # Stop $service if it's running
+            If ($CurrentService.Status -eq "Running") {
+                $CurrentService | Stop-Service
+                $Status = Get-Service $Service
+                Write-Host $Status.DisplayName "is" $Status.Status
+            }else {
+                $Status = Get-Service $Service
+                Write-Host $Status.DisplayName "was already" $Status.Status
+            }
+        }elseif ($Stage -eq "start") {
+            # Re-Start the Services
+            If ($CurrentService.Status -eq "Stopped") {
+                $CurrentService | Start-Service
+                $Status = Get-Service $Service
+                Write-Host $Status.DisplayName "is now" $Status.Status
+            }
+        }
+    }
 }
 
-# Clean Windows Update Cache
-Write-Host "Cleaning Windows Update Cache..." -ForegroundColor Blue
-$UpdateCachePath = Join-Path $env:windir "SoftwareDistribution\Download"
-Get-ChildItem -Path $UpdateCachePath -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+#Set the stage and list services
+Set-ServiceActions -Stage $Stage -Services $Services
 
-# Start Windows Update Service
-Write-Host "Starting Windows Update Service..." -ForegroundColor Blue
-$WUService | Start-Service
+# Clean Windows Update Cache
+$UpdateCachePath = Join-Path $env:windir "SoftwareDistribution\Download"
+$fileNames = (Get-ChildItem -Path $UpdateCachePath -Recurse)
+ForEach ($item in $fileNames){
+    Write-Host $item.Name
+    $item | Remove-Item -Force -Whatif
+}
+
+#Run the Start Sequence
+$Stage = "Start"
+
+Set-ServiceActions -Stage $Stage -Services $Services
 
 # Get final free disk space
 $After = Get-FreeDiskSpace
-Write-Host "Free Disk Space after: $After GB" -ForegroundColor Blue
 
 # Calculate and display the freed disk space
 $Cleaned = $After - $Before
-Write-Host "Cleaned: $Cleaned GB" -ForegroundColor Green
 
-Write-Host "Done..." -ForegroundColor Green
+# Finish Logging all output
+Stop-Transcript
